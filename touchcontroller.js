@@ -11,6 +11,28 @@ window.TouchController = function(){
             || (navigator.msMaxTouchPoints > 0));
     }
 
+    function getOffsetRect(elem) {
+        // (1)
+        var box = elem.getBoundingClientRect()
+
+        var body = document.body
+        var docElem = document.documentElement
+
+        // (2)
+        var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop
+        var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft
+
+        // (3)
+        var clientTop = docElem.clientTop || body.clientTop || 0
+        var clientLeft = docElem.clientLeft || body.clientLeft || 0
+
+        // (4)
+        var top  = box.top +  scrollTop - clientTop
+        var left = box.left + scrollLeft - clientLeft
+
+        return { top: Math.round(top), left: Math.round(left) }
+    }
+
     if(isTouchDevice() || true) {
         var diameter = 210;
         document.write("<style>.touchController { " +
@@ -43,6 +65,8 @@ window.TouchController = function(){
 
             this.degree = -1;
             this.pressed = false;
+            this.x = 0;
+            this.y = 0;
             var self = this;
 
             function handleStart(e) {
@@ -68,11 +92,14 @@ window.TouchController = function(){
             el.addEventListener("touchcancel", handleEnd, false);
 
             setTimeout(function(){
-                var el = document.getElementsByName(id);
-                el.getBoundingClientRect();
+                var el = document.getElementById(id);
+
+                var o = getOffsetRect(el);
+
+                self.x = o.left + Math.ceil(diameter/2);
+                self.y = o.top + Math.ceil(diameter/2);
+
             },100);
-
-
         }
 
         TouchController.prototype.isPressed = function(){
@@ -80,7 +107,7 @@ window.TouchController = function(){
         };
 
         TouchController.prototype.getDegree = function(){
-            return this.degree;
+            return this.degree + " " + this.x + " " + this.y;
         };
 
         TouchController.isTouchDevice = true;
