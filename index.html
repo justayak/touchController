@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Touch</title>
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="touchcontroller.js"></script>
+</head>
+<body>
+<div style="background-color: red; height: 400px; position:relative;">
+    Touchcontroller
+    <div id="text"></div>
+    <div id="touch">
+
+    </div>
+</div>
+</body>
+<script>
+
+    $(function(){
+
+        var t = new TouchController("touch", {bottom:1, left:115});
+
+        setInterval(function(){
+            $("#text").html(t.getDegree() + " - " + t.isPressed());
+        }, 100);
+
+    });
+
+</script>
+</html>
