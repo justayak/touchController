@@ -49,180 +49,180 @@ window.TouchController = function(){
         topTouchOffset = 100;
     }
 
-    if(isTouchDevice() || true) {
-        var diameter = 175;
-        var btnDiameter = 65;
-        document.write("<style>.touchController{ " +
-            "width:"+diameter+"px;height:"+diameter+"px;border:2px solid black;position:absolute;border-radius:50%;" +
-            " } .innerTouchController {" +
-            "width:5px;height:5px;margin-left:auto;margin-right:auto;margin-top:"+(Math.ceil(diameter/2))+
-            "px;background-color:black;}" +
-            ".touchBtn{position:absolute;border:2px solid black;position:absolute;border-radius:50%;" +
-            "width:"+btnDiameter+"px;height:"+btnDiameter+"px;}" +
-            ".touchBtnTxt{text-align:center;line-height:"+btnDiameter+"px;}" +
-            ".touchBtn.pressed{background-color:cornflowerblue;}" +
-            "</style>");
 
-        // =============== ANALOG STICK =================
+    var diameter = 175;
+    var btnDiameter = 65;
+    document.write("<style>.touchController{ " +
+        "width:"+diameter+"px;height:"+diameter+"px;border:2px solid black;position:absolute;border-radius:50%;" +
+        " } .innerTouchController {" +
+        "width:5px;height:5px;margin-left:auto;margin-right:auto;margin-top:"+(Math.ceil(diameter/2))+
+        "px;background-color:black;}" +
+        ".touchBtn{position:absolute;border:2px solid black;position:absolute;border-radius:50%;" +
+        "width:"+btnDiameter+"px;height:"+btnDiameter+"px;}" +
+        ".touchBtnTxt{text-align:center;line-height:"+btnDiameter+"px;}" +
+        ".touchBtn.pressed{background-color:cornflowerblue;}" +
+        "</style>");
 
-        function AnalogStick(domid, position) {
-            var el = document.getElementById(domid);
-            var style = "";
-            if (typeof position === "undefined") {
-                position = {};
-            }
-            if ("bottom" in position){
-                style += "bottom:" +position.bottom + "px;";
-            } else if ("top" in position) {
-                style += "top:" +position.top + "px;";
-            }
-            if ("left" in position){
-                style += "left:" +position.left + "px;";
-            } else if ("right" in position) {
-                style += "right:" +position.right + "px;";
-            }
+    // =============== ANALOG STICK =================
 
-            var id = "touchController" + nextID++;
-            el.innerHTML = '<div style="'+
-                style+
-                '" id="'+ id
-                +'" class="touchController"><div class="innerTouchController"></div></div>';
-
-            this.fx = -1;
-            this.fy = -1;
-            this.pressed = false;
-            this.x = 0;
-            this.y = 0;
-            var self = this;
-
-            function handleStart(e) {
-                self.pressed = true;
-                e.preventDefault();
-                self.fx = e.changedTouches[0].screenX;
-                self.fy = e.changedTouches[0].screenY - topTouchOffset;
-            }
-
-            function handleEnd(e) {
-                self.pressed = false;
-                e.preventDefault();
-            }
-
-            function handleMove(e) {
-                e.preventDefault();
-                self.fx = e.changedTouches[0].screenX;
-                self.fy = e.changedTouches[0].screenY - topTouchOffset;
-            }
-
-            el.addEventListener("touchstart", handleStart, false);
-            el.addEventListener("touchend", handleEnd, false);
-            el.addEventListener("touchmove", handleMove, false);
-            el.addEventListener("touchcancel", handleEnd, false);
-
-            setTimeout(function(){
-                var el = document.getElementById(id);
-                var o = getOffsetRect(el);
-                self.x = o.left + Math.ceil(diameter/2);
-                self.y = o.top + Math.ceil(diameter/2);
-            },100);
+    function AnalogStick(domid, position) {
+        var el = document.getElementById(domid);
+        var style = "";
+        if (typeof position === "undefined") {
+            position = {};
+        }
+        if ("bottom" in position){
+            style += "bottom:" +position.bottom + "px;";
+        } else if ("top" in position) {
+            style += "top:" +position.top + "px;";
+        }
+        if ("left" in position){
+            style += "left:" +position.left + "px;";
+        } else if ("right" in position) {
+            style += "right:" +position.right + "px;";
         }
 
-        AnalogStick.prototype.isPressed = function(){
-            return this.pressed;
-        };
+        var id = "touchController" + nextID++;
+        el.innerHTML = '<div style="'+
+            style+
+            '" id="'+ id
+            +'" class="touchController"><div class="innerTouchController"></div></div>';
 
-        AnalogStick.prototype.getDegree = function(){
-            return getDegree(this.x, this.y, this.fx, this.fy);
-        };
+        this.fx = -1;
+        this.fy = -1;
+        this.pressed = false;
+        this.x = 0;
+        this.y = 0;
+        var self = this;
 
-        // =============== D STICK =================
-
-        function DPad(domid, position){
-            AnalogStick.call(this, domid,position);
+        function handleStart(e) {
+            self.pressed = true;
+            e.preventDefault();
+            self.fx = e.changedTouches[0].screenX;
+            self.fy = e.changedTouches[0].screenY - topTouchOffset;
         }
 
-        DPad.prototype = Object.create(AnalogStick.prototype);
-
-        DPad.UP = 0;
-        DPad.DOWN = 1;
-        DPad.LEFT = 2;
-        DPad.RIGHT = 3;
-        DPad.NONE = 4;
-
-        DPad.prototype.getDirection = function(){
-            if (this.isPressed()) {
-                var deg = this.getDegree();
-                if (deg < 45 || deg >= 315){
-                    return DPad.LEFT;
-                } else if (deg < 315 && deg >= 225) {
-                    return DPad.UP;
-                } else if (deg < 225 && deg >= 135) {
-                    return DPad.RIGHT;
-                } else {
-                    return DPad.DOWN;
-                }
-            } else {
-                return DPad.NONE;
-            }
-        };
-
-        // =============== BUTTON =================
-
-        function Button(domid, name, position) {
-            var el = document.getElementById(domid);
-            var style = "";
-            if (typeof position === "undefined") {
-                position = {};
-            }
-            if ("bottom" in position){
-                style += "bottom:" +position.bottom + "px;";
-            } else if ("top" in position) {
-                style += "top:" +position.top + "px;";
-            }
-            if ("left" in position){
-                style += "left:" +position.left + "px;";
-            } else if ("right" in position) {
-                style += "right:" +position.right + "px;";
-            }
-
-            var id = "touchBtn" + nextID++;
-            el.innerHTML = '<div style="'+
-                style+
-                '" id="'+ id
-                +'" class="touchBtn"><div class="touchBtnTxt">' + name +'</div></div>';
-
-            var self = this;
-
-            function handleStart(e) {
-                self.pressed = true;
-                document.getElementById(id).className = "touchBtn pressed";
-                e.preventDefault();
-            }
-
-            function handleEnd(e) {
-                self.pressed = false;
-                document.getElementById(id).className = "touchBtn";
-                e.preventDefault();
-            }
-
-            el.addEventListener("touchstart", handleStart, false);
-            el.addEventListener("touchend", handleEnd, false);
-            el.addEventListener("touchcancel", handleEnd, false);
-
+        function handleEnd(e) {
+            self.pressed = false;
+            e.preventDefault();
         }
 
-        Button.prototype.isPressed = function(){
-            return this.pressed;
-        };
-
-        return {
-            AnalogStick: AnalogStick,
-            DPad: DPad,
-            Button: Button,
-            isTouchDevice: true
-        };
-    } else {
-        return {
-            isTouchDevice : false
+        function handleMove(e) {
+            e.preventDefault();
+            self.fx = e.changedTouches[0].screenX;
+            self.fy = e.changedTouches[0].screenY - topTouchOffset;
         }
+
+        el.addEventListener("touchstart", handleStart, false);
+        el.addEventListener("touchend", handleEnd, false);
+        el.addEventListener("touchmove", handleMove, false);
+        el.addEventListener("touchcancel", handleEnd, false);
+
+        setTimeout(function(){
+            var el = document.getElementById(id);
+            var o = getOffsetRect(el);
+            self.x = o.left + Math.ceil(diameter/2);
+            self.y = o.top + Math.ceil(diameter/2);
+        },100);
     }
+
+    AnalogStick.prototype.isPressed = function(){
+        return this.pressed;
+    };
+
+    AnalogStick.prototype.getDegree = function(){
+        return getDegree(this.x, this.y, this.fx, this.fy);
+    };
+
+    // =============== D STICK =================
+
+    function DPad(domid, position){
+        AnalogStick.call(this, domid,position);
+    }
+
+    DPad.prototype = Object.create(AnalogStick.prototype);
+
+    DPad.UP = 0;
+    DPad.DOWN = 1;
+    DPad.LEFT = 2;
+    DPad.RIGHT = 3;
+    DPad.NONE = 4;
+
+    DPad.prototype.getDirection = function(){
+        if (this.isPressed()) {
+            var deg = this.getDegree();
+            if (deg < 45 || deg >= 315){
+                return DPad.LEFT;
+            } else if (deg < 315 && deg >= 225) {
+                return DPad.UP;
+            } else if (deg < 225 && deg >= 135) {
+                return DPad.RIGHT;
+            } else {
+                return DPad.DOWN;
+            }
+        } else {
+            return DPad.NONE;
+        }
+    };
+
+    // =============== BUTTON =================
+
+    function Button(domid, name, position) {
+        var el = document.getElementById(domid);
+        var style = "";
+        if (typeof position === "undefined") {
+            position = {};
+        }
+        if ("bottom" in position){
+            style += "bottom:" +position.bottom + "px;";
+        } else if ("top" in position) {
+            style += "top:" +position.top + "px;";
+        }
+        if ("left" in position){
+            style += "left:" +position.left + "px;";
+        } else if ("right" in position) {
+            style += "right:" +position.right + "px;";
+        }
+
+        var id = "touchBtn" + nextID++;
+        el.innerHTML = '<div style="'+
+            style+
+            '" id="'+ id
+            +'" class="touchBtn"><div class="touchBtnTxt">' + name +'</div></div>';
+
+        var self = this;
+
+        function handleStart(e) {
+            self.pressed = true;
+            if (self.onClick !== null) {
+                self.onClick.call(self);
+            }
+            document.getElementById(id).className = "touchBtn pressed";
+            e.preventDefault();
+        }
+
+        function handleEnd(e) {
+            self.pressed = false;
+            document.getElementById(id).className = "touchBtn";
+            e.preventDefault();
+        }
+
+        el.addEventListener("touchstart", handleStart, false);
+        el.addEventListener("touchend", handleEnd, false);
+        el.addEventListener("touchcancel", handleEnd, false);
+
+        this.onClick = null;
+
+    }
+
+    Button.prototype.isPressed = function(){
+        return this.pressed;
+    };
+
+    return {
+        AnalogStick: AnalogStick,
+        DPad: DPad,
+        Button: Button,
+        isTouchDevice: isTouchDevice()
+    };
 }();

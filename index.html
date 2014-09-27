@@ -8,7 +8,15 @@
     <script src="touchcontroller.js"></script>
 </head>
 <body>
-<div style="background-color: red; height: 400px; position:relative;">
+<style>
+    #demo {
+        background-color: red;
+    }
+    #demo.qq {
+        background-color: lightcoral;
+    }
+</style>
+<div id="demo" style="height: 400px; position:relative;">
     Touchcontroller
     <div id="text"></div>
     <div id="touch">
@@ -25,6 +33,10 @@
         var t = new TouchController.DPad("touch", {bottom:2, left:2});
 
         var b = new TouchController.Button("abtn", "A", {bottom:2, left: 200})
+        b.onClick = function(){
+            $("#demo").toggleClass("qq");
+        }
+
 
         setInterval(function(){
             $("#text").html(t.getDirection() + " - " + b.isPressed());
