@@ -33,6 +33,15 @@ window.TouchController = function(){
         return { top: Math.round(top), left: Math.round(left) }
     }
 
+    var toDeg = 180 / Math.PI;
+    function getDegree(x1,y1,x2,y2) {
+        var x = x1-x2;
+        var y = y1-y2;
+        var theta = Math.atan2(-y, x);
+        if (theta < 0) theta += 2 * Math.PI;
+        return theta * toDeg;
+    }
+
     if(isTouchDevice() || true) {
         var diameter = 210;
         document.write("<style>.touchController { " +
@@ -63,7 +72,8 @@ window.TouchController = function(){
                 '" id="'+ id
                 +'" class="touchController"><div class="innerTouchController"></div></div>';
 
-            this.degree = -1;
+            this.fx = -1;
+            this.fy = -1;
             this.pressed = false;
             this.x = 0;
             this.y = 0;
@@ -72,7 +82,8 @@ window.TouchController = function(){
             function handleStart(e) {
                 self.pressed = true;
                 e.preventDefault();
-                self.degree = e.changedTouches[0].screenX;
+                self.fx = e.changedTouches[0].screenX;
+                self.fy = e.changedTouches[0].screenY;
             }
 
             function handleEnd(e) {
@@ -83,7 +94,8 @@ window.TouchController = function(){
 
             function handleMove(e) {
                 e.preventDefault();
-                self.degree = e.changedTouches[0].screenX;
+                self.fx = e.changedTouches[0].screenX;
+                self.fy = e.changedTouches[0].screenY;
             }
 
             el.addEventListener("touchstart", handleStart, false);
@@ -107,7 +119,7 @@ window.TouchController = function(){
         };
 
         CircleController.prototype.getDegree = function(){
-            return this.degree + " " + this.x + " " + this.y;
+            return getDegree(this.x, this.y, this.fx, this.fy);
         };
 
         return {
