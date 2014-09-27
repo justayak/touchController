@@ -14,16 +14,18 @@
     <div id="touch">
 
     </div>
+    <div id="abtn"></div>
+    <div id="bbtn"></div>
 </div>
 </body>
 <script>
 
     $(function(){
 
-        var t = new TouchController.AnalogStick("touch", {bottom:1, left:115});
+        var t = new TouchController.DStick("touch", {bottom:2, left:2});
 
         setInterval(function(){
-            $("#text").html(t.getDegree() + " - " + t.isPressed());
+            $("#text").html(t.getDirection());
         }, 100);
 
     });

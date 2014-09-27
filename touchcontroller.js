@@ -50,7 +50,7 @@ window.TouchController = function(){
     }
 
     if(isTouchDevice() || true) {
-        var diameter = 210;
+        var diameter = 175;
         document.write("<style>.touchController { " +
             "width:"+diameter+"px;height:"+diameter+"px;border:2px solid black;position:absolute;border-radius:50%;" +
             " } .innerTouchController {" +
@@ -133,11 +133,44 @@ window.TouchController = function(){
         // =============== D STICK =================
 
         function DStick(domid, position){
+            AnalogStick.call(this, domid,position);
+        }
+
+        DStick.prototype = Object.create(AnalogStick.prototype);
+
+        DStick.UP = 0;
+        DStick.DOWN = 1;
+        DStick.LEFT = 2;
+        DStick.RIGHT = 3;
+        DStick.NONE = 4;
+
+        DStick.prototype.getDirection = function(){
+            if (this.isPressed()) {
+                var deg = this.getDegree();
+                if (deg < 45 || deg >= 315){
+                    return DStick.LEFT;
+                } else if (deg < 315 && deg >= 225) {
+                    return DStick.UP;
+                } else if (deg < 225 && deg >= 135) {
+                    return DStick.RIGHT;
+                } else {
+                    return DStick.DOWN;
+                }
+            } else {
+                return DStick.NONE;
+            }
+        };
+
+        // =============== BUTTON =================
+
+        function Button(domid, name, position) {
 
         }
 
         return {
             AnalogStick: AnalogStick,
+            DStick: DStick,
+            Button: Button,
             isTouchDevice: true
         };
     } else {
