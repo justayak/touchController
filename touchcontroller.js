@@ -51,7 +51,7 @@ window.TouchController = function(){
 
     if(isTouchDevice() || true) {
         var diameter = 175;
-        var btnDiameter = 90;
+        var btnDiameter = 65;
         document.write("<style>.touchController{ " +
             "width:"+diameter+"px;height:"+diameter+"px;border:2px solid black;position:absolute;border-radius:50%;" +
             " } .innerTouchController {" +
@@ -60,6 +60,7 @@ window.TouchController = function(){
             ".touchBtn{position:absolute;border:2px solid black;position:absolute;border-radius:50%;" +
             "width:"+btnDiameter+"px;height:"+btnDiameter+"px;}" +
             ".touchBtnTxt{text-align:center;line-height:"+btnDiameter+"px;}" +
+            ".touchBtn.pressed{background-color:cornflowerblue;}" +
             "</style>");
 
         // =============== ANALOG STICK =================
@@ -183,7 +184,7 @@ window.TouchController = function(){
                 style += "right:" +position.right + "px;";
             }
 
-            var id = "touchController" + nextID++;
+            var id = "touchBtn" + nextID++;
             el.innerHTML = '<div style="'+
                 style+
                 '" id="'+ id
@@ -193,11 +194,13 @@ window.TouchController = function(){
 
             function handleStart(e) {
                 self.pressed = true;
+                document.getElementById(id).className = "touchBtn pressed";
                 e.preventDefault();
             }
 
             function handleEnd(e) {
                 self.pressed = false;
+                document.getElementById(id).className = "touchBtn";
                 e.preventDefault();
             }
 
@@ -206,6 +209,10 @@ window.TouchController = function(){
             el.addEventListener("touchcancel", handleEnd, false);
 
         }
+
+        Button.prototype.isPressed = function(){
+            return this.pressed;
+        };
 
         return {
             AnalogStick: AnalogStick,

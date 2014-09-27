@@ -27,7 +27,7 @@
         var b = new TouchController.Button("abtn", "A", {bottom:2, left: 200})
 
         setInterval(function(){
-            $("#text").html(t.getDirection());
+            $("#text").html(t.getDirection() + " - " + b.isPressed());
         }, 100);
 
     });
