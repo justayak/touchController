@@ -51,11 +51,16 @@ window.TouchController = function(){
 
     if(isTouchDevice() || true) {
         var diameter = 175;
-        document.write("<style>.touchController { " +
+        var btnDiameter = 90;
+        document.write("<style>.touchController{ " +
             "width:"+diameter+"px;height:"+diameter+"px;border:2px solid black;position:absolute;border-radius:50%;" +
             " } .innerTouchController {" +
-            "width:5px;height:5px;margin-left:auto;margin-right:auto;margin-top:"+(Math.ceil(diameter/2))+"px;background-color:black;" +
-            "}</style>");
+            "width:5px;height:5px;margin-left:auto;margin-right:auto;margin-top:"+(Math.ceil(diameter/2))+
+            "px;background-color:black;}" +
+            ".touchBtn{position:absolute;border:2px solid black;position:absolute;border-radius:50%;" +
+            "width:"+btnDiameter+"px;height:"+btnDiameter+"px;}" +
+            ".touchBtnTxt{text-align:center;line-height:"+btnDiameter+"px;}" +
+            "</style>");
 
         // =============== ANALOG STICK =================
 
@@ -99,7 +104,6 @@ window.TouchController = function(){
             function handleEnd(e) {
                 self.pressed = false;
                 e.preventDefault();
-                self.degree = 10;
             }
 
             function handleMove(e) {
@@ -118,7 +122,6 @@ window.TouchController = function(){
                 var o = getOffsetRect(el);
                 self.x = o.left + Math.ceil(diameter/2);
                 self.y = o.top + Math.ceil(diameter/2);
-
             },100);
         }
 
@@ -132,44 +135,81 @@ window.TouchController = function(){
 
         // =============== D STICK =================
 
-        function DStick(domid, position){
+        function DPad(domid, position){
             AnalogStick.call(this, domid,position);
         }
 
-        DStick.prototype = Object.create(AnalogStick.prototype);
+        DPad.prototype = Object.create(AnalogStick.prototype);
 
-        DStick.UP = 0;
-        DStick.DOWN = 1;
-        DStick.LEFT = 2;
-        DStick.RIGHT = 3;
-        DStick.NONE = 4;
+        DPad.UP = 0;
+        DPad.DOWN = 1;
+        DPad.LEFT = 2;
+        DPad.RIGHT = 3;
+        DPad.NONE = 4;
 
-        DStick.prototype.getDirection = function(){
+        DPad.prototype.getDirection = function(){
             if (this.isPressed()) {
                 var deg = this.getDegree();
                 if (deg < 45 || deg >= 315){
-                    return DStick.LEFT;
+                    return DPad.LEFT;
                 } else if (deg < 315 && deg >= 225) {
-                    return DStick.UP;
+                    return DPad.UP;
                 } else if (deg < 225 && deg >= 135) {
-                    return DStick.RIGHT;
+                    return DPad.RIGHT;
                 } else {
-                    return DStick.DOWN;
+                    return DPad.DOWN;
                 }
             } else {
-                return DStick.NONE;
+                return DPad.NONE;
             }
         };
 
         // =============== BUTTON =================
 
         function Button(domid, name, position) {
+            var el = document.getElementById(domid);
+            var style = "";
+            if (typeof position === "undefined") {
+                position = {};
+            }
+            if ("bottom" in position){
+                style += "bottom:" +position.bottom + "px;";
+            } else if ("top" in position) {
+                style += "top:" +position.top + "px;";
+            }
+            if ("left" in position){
+                style += "left:" +position.left + "px;";
+            } else if ("right" in position) {
+                style += "right:" +position.right + "px;";
+            }
+
+            var id = "touchController" + nextID++;
+            el.innerHTML = '<div style="'+
+                style+
+                '" id="'+ id
+                +'" class="touchBtn"><div class="touchBtnTxt">' + name +'</div></div>';
+
+            var self = this;
+
+            function handleStart(e) {
+                self.pressed = true;
+                e.preventDefault();
+            }
+
+            function handleEnd(e) {
+                self.pressed = false;
+                e.preventDefault();
+            }
+
+            el.addEventListener("touchstart", handleStart, false);
+            el.addEventListener("touchend", handleEnd, false);
+            el.addEventListener("touchcancel", handleEnd, false);
 
         }
 
         return {
             AnalogStick: AnalogStick,
-            DStick: DStick,
+            DPad: DPad,
             Button: Button,
             isTouchDevice: true
         };
