@@ -20,7 +20,7 @@
 
     $(function(){
 
-        var t = new TouchController("touch", {bottom:1, left:115});
+        var t = new TouchController.CircleController("touch", {bottom:1, left:115});
 
         setInterval(function(){
             $("#text").html(t.getDegree() + " - " + t.isPressed());

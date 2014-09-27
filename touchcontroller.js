@@ -40,7 +40,7 @@ window.TouchController = function(){
             " } .innerTouchController {" +
             "width:5px;height:5px;margin-left:auto;margin-right:auto;margin-top:"+(Math.ceil(diameter/2))+"px;background-color:black;" +
             "}</style>");
-        function TouchController(domid, position) {
+        function CircleController(domid, position) {
             var el = document.getElementById(domid);
             var style = "";
             if (typeof position === "undefined") {
@@ -102,16 +102,18 @@ window.TouchController = function(){
             },100);
         }
 
-        TouchController.prototype.isPressed = function(){
+        CircleController.prototype.isPressed = function(){
             return this.pressed;
         };
 
-        TouchController.prototype.getDegree = function(){
+        CircleController.prototype.getDegree = function(){
             return this.degree + " " + this.x + " " + this.y;
         };
 
-        TouchController.isTouchDevice = true;
-        return TouchController;
+        return {
+            CircleController: CircleController,
+            isTouchDevice: true
+        };
     } else {
         return {
             isTouchDevice : false
