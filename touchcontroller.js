@@ -11,6 +11,8 @@ window.TouchController = function(){
             || (navigator.msMaxTouchPoints > 0));
     }
 
+    var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+
     function getOffsetRect(elem) {
         // (1)
         var box = elem.getBoundingClientRect()
@@ -42,6 +44,11 @@ window.TouchController = function(){
         return theta * toDeg;
     }
 
+    var topTouchOffset = 0;
+    if (isChrome) {
+        topTouchOffset = 100;
+    }
+
     if(isTouchDevice() || true) {
         var diameter = 210;
         document.write("<style>.touchController { " +
@@ -49,7 +56,10 @@ window.TouchController = function(){
             " } .innerTouchController {" +
             "width:5px;height:5px;margin-left:auto;margin-right:auto;margin-top:"+(Math.ceil(diameter/2))+"px;background-color:black;" +
             "}</style>");
-        function CircleController(domid, position) {
+
+        // =============== ANALOG STICK =================
+
+        function AnalogStick(domid, position) {
             var el = document.getElementById(domid);
             var style = "";
             if (typeof position === "undefined") {
@@ -83,7 +93,7 @@ window.TouchController = function(){
                 self.pressed = true;
                 e.preventDefault();
                 self.fx = e.changedTouches[0].screenX;
-                self.fy = e.changedTouches[0].screenY;
+                self.fy = e.changedTouches[0].screenY - topTouchOffset;
             }
 
             function handleEnd(e) {
@@ -95,7 +105,7 @@ window.TouchController = function(){
             function handleMove(e) {
                 e.preventDefault();
                 self.fx = e.changedTouches[0].screenX;
-                self.fy = e.changedTouches[0].screenY;
+                self.fy = e.changedTouches[0].screenY - topTouchOffset;
             }
 
             el.addEventListener("touchstart", handleStart, false);
@@ -105,25 +115,29 @@ window.TouchController = function(){
 
             setTimeout(function(){
                 var el = document.getElementById(id);
-
                 var o = getOffsetRect(el);
-
                 self.x = o.left + Math.ceil(diameter/2);
                 self.y = o.top + Math.ceil(diameter/2);
 
             },100);
         }
 
-        CircleController.prototype.isPressed = function(){
+        AnalogStick.prototype.isPressed = function(){
             return this.pressed;
         };
 
-        CircleController.prototype.getDegree = function(){
+        AnalogStick.prototype.getDegree = function(){
             return getDegree(this.x, this.y, this.fx, this.fy);
         };
 
+        // =============== D STICK =================
+
+        function DStick(domid, position){
+
+        }
+
         return {
-            CircleController: CircleController,
+            AnalogStick: AnalogStick,
             isTouchDevice: true
         };
     } else {
