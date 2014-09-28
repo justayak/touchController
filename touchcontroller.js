@@ -113,6 +113,7 @@ window.TouchController = function(){
     // =============== ANALOG STICK =================
 
     function AnalogStick(domid, position) {
+        this.allowOnClick = true;
         var el = document.getElementById(domid);
         if (_isTouchDevice) {
             var style = "";
@@ -143,22 +144,28 @@ window.TouchController = function(){
             this.y = 0;
             var self = this;
 
+            this.onClick = null;
+            this.onRelease = null;
+
             function handleStart(e) {
                 self.pressed = true;
                 e.preventDefault();
                 self.fx = e.changedTouches[0].screenX;
                 self.fy = e.changedTouches[0].screenY - topTouchOffset;
+                if (self.allowOnClick && self.onClick !== null) self.onClick.call(self);
             }
 
             function handleEnd(e) {
                 self.pressed = false;
                 e.preventDefault();
+                if (self.allowOnClick && self.onRelease !== null) self.onRelease.call(self);
             }
 
             function handleMove(e) {
                 e.preventDefault();
                 self.fx = e.changedTouches[0].screenX;
                 self.fy = e.changedTouches[0].screenY - topTouchOffset;
+                if (self.allowOnClick && self.onClick !== null) self.onClick.call(self);
             }
 
             el.addEventListener("touchstart", handleStart, false);
@@ -188,8 +195,95 @@ window.TouchController = function(){
 
     // =============== D STICK =================
 
-    function DPad(domid, position){
-        AnalogStick.call(this, domid,position);
+    var listener = -1;
+    function DPad(domid, options){
+        AnalogStick.call(this, domid,options);
+        if ("WASDEvents" in options && options["WASDEvents"]){
+
+            var CLICK_INTERVAL_IN_MS = 500;
+
+            if (listener !== -1) {
+                clearInterval(listener);
+            }
+
+            var self = this;
+            function keyPressCheck() {
+                if (self.isPressed()) {
+                    var now = new Date().getTime();
+                    if ((now - lastTimePressedMs) > CLICK_INTERVAL_IN_MS) {
+                        lastTimePressedMs = now;
+                        switch (self.getDirection()){
+                            case DPad.UP:
+                                if (self.onUp !== null) self.onUp.call(self);
+                                break;
+                            case DPad.DOWN:
+                                if (self.onDown !== null) self.onDown.call(self);
+                                break;
+                            case DPad.LEFT:
+                                if (self.onLeft !== null) self.onLeft.call(self);
+                                break;
+                            case DPad.RIGHT:
+                                if (self.onRight !== null) self.onRight.call(self);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            var lastTimePressedMs = 0;
+            var firstClick = true;
+
+            listener = setInterval(keyPressCheck, 125);
+
+            this.onClick = function(){
+                var now = new Date().getTime();
+                if (firstClick) {
+                    lastTimePressedMs = now;
+                    firstClick = false;
+                    switch (this.getDirection()){
+                        case DPad.UP:
+                            if (this.onUp !== null) this.onUp.call(this);
+                            break;
+                        case DPad.DOWN:
+                            if (this.onDown !== null) this.onDown.call(this);
+                            break;
+                        case DPad.LEFT:
+                            if (this.onLeft !== null) this.onLeft.call(this);
+                            break;
+                        case DPad.RIGHT:
+                            if (this.onRight !== null) this.onRight.call(this);
+                            break;
+                    }
+                } else {
+                    if ((now - lastTimePressedMs) > CLICK_INTERVAL_IN_MS) {
+                        switch (this.getDirection()){
+                            case DPad.UP:
+                                if (this.onUp !== null) this.onUp.call(this);
+                                break;
+                            case DPad.DOWN:
+                                if (this.onDown !== null) this.onDown.call(this);
+                                break;
+                            case DPad.LEFT:
+                                if (this.onLeft !== null) this.onLeft.call(this);
+                                break;
+                            case DPad.RIGHT:
+                                if (this.onRight !== null) this.onRight.call(this);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            this.onRelease = function(){
+                firstClick = true;
+            }
+
+            this.onUp = null;
+            this.onDown = null;
+            this.onLeft = null;
+            this.onRight = null;
+
+        }
     }
 
     DPad.prototype = Object.create(AnalogStick.prototype);
@@ -216,6 +310,8 @@ window.TouchController = function(){
             return DPad.NONE;
         }
     };
+
+
 
     // =============== BUTTON =================
 
