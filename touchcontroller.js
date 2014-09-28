@@ -167,24 +167,32 @@ window.TouchController = function(){
 
     // =============== BUTTON =================
 
-    function Button(domid, name, position) {
+    /**
+     *
+     * @param domid
+     * @param name
+     * @param options
+     * @constructor
+     */
+    function Button(domid, name, options) {
         var el = document.getElementById(domid);
         var style = "";
-        if (typeof position === "undefined") {
-            position = {};
+        if (typeof options === "undefined") {
+            options = {};
         }
-        if ("bottom" in position){
-            style += "bottom:" +position.bottom + "px;";
-        } else if ("top" in position) {
-            style += "top:" +position.top + "px;";
+        if ("bottom" in options){
+            style += "bottom:" +options.bottom + "px;";
+        } else if ("top" in options) {
+            style += "top:" +options.top + "px;";
         }
-        if ("left" in position){
-            style += "left:" +position.left + "px;";
-        } else if ("right" in position) {
-            style += "right:" +position.right + "px;";
+        if ("left" in options){
+            style += "left:" +options.left + "px;";
+        } else if ("right" in options) {
+            style += "right:" +options.right + "px;";
         }
 
         var id = "touchBtn" + nextID++;
+        this.pressed = false;
         el.innerHTML = '<div style="'+
             style+
             '" id="'+ id
@@ -194,14 +202,20 @@ window.TouchController = function(){
 
         function handleStart(e) {
             self.pressed = true;
-            if (self.onClick !== null) {
-                self.onClick.call(self);
-            }
             document.getElementById(id).className = "touchBtn pressed";
             e.preventDefault();
         }
 
         function handleEnd(e) {
+            self.pressed = false;
+            if (self.onClick !== null) {
+                self.onClick.call(self);
+            }
+            document.getElementById(id).className = "touchBtn";
+            e.preventDefault();
+        }
+
+        function handleCancel(e){
             self.pressed = false;
             document.getElementById(id).className = "touchBtn";
             e.preventDefault();
@@ -209,7 +223,7 @@ window.TouchController = function(){
 
         el.addEventListener("touchstart", handleStart, false);
         el.addEventListener("touchend", handleEnd, false);
-        el.addEventListener("touchcancel", handleEnd, false);
+        el.addEventListener("touchcancel", handleCancel, false);
 
         this.onClick = null;
 
