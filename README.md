@@ -31,7 +31,7 @@ var degree = analogStick.getDegree(); // DOUBLE
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // When WSADEvents=true, the dpad will be mapped to the
-/ W A S D-Buttons on a keyboard, if no touch device is available
+// W A S D-Buttons on a keyboard, if no touch device is available
 var dpad = new TouchController.DPad(
     "dpad",
     {top: 10, right: 5, WASDEvents: true}
