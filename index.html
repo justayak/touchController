@@ -40,7 +40,6 @@
         var b = new TouchController.Button("bbtn", "B", {bottom:2, left: 260, key: TouchController.KEYS.ENTER});
         b.onClick = function(){
             var o = parseInt($("#demo").css('opacity'),10);
-            console.log(o);
             if (o === 1) {
                 $("#demo").css('opacity', 0.5);
             } else {
@@ -50,7 +49,7 @@
         }
 
         setInterval(function(){
-            $("#text").html(t.getDirection() + " - " + b.isPressed());
+            $("#text").html(t.getDirection());
         }, 100);
 
     });

@@ -245,7 +245,6 @@ window.TouchController = function(){
             }
 
             var id = "touchBtn" + nextID++;
-            this.pressed = false;
             el.innerHTML = '<div style="'+
                 style+
                 '" id="'+ id
@@ -254,13 +253,11 @@ window.TouchController = function(){
             var self = this;
 
             function handleStart(e) {
-                self.pressed = true;
                 document.getElementById(id).className = "touchBtn pressed";
                 e.preventDefault();
             }
 
             function handleEnd(e) {
-                self.pressed = false;
                 if (self.onClick !== null) {
                     self.onClick.call(self);
                 }
@@ -269,7 +266,6 @@ window.TouchController = function(){
             }
 
             function handleCancel(e){
-                self.pressed = false;
                 document.getElementById(id).className = "touchBtn";
                 e.preventDefault();
             }
@@ -284,14 +280,8 @@ window.TouchController = function(){
                 keyToButton[options["key"]] = this;
             }
         }
-
         this.onClick = null;
-
     }
-
-    Button.prototype.isPressed = function(){
-        return this.pressed;
-    };
 
     return {
         KEYS : KEYS,
