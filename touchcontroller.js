@@ -63,7 +63,6 @@ window.TouchController = function(){
     }
 
     function testAndExecKey(keycode, expectedKeycode, value) {
-        console.log("test " + value);
         if (expectedKeycode === keycode && value in keyToButton ){
             var btn = keyToButton[value];
             if (btn.onClick !== null) {
@@ -81,12 +80,12 @@ window.TouchController = function(){
             // Do not listen on WASD
             if (keyCode !== 87 && keyCode !== 65 &&
                 keyCode !== 83 && keyCode !== 68)
-            if (!testAndExecKey(keyCode, 32, KEYS.SPACE))
-            if (!testAndExecKey(keyCode, 13, KEYS.ENTER))
-            if (!testAndExecKey(keyCode, 27, KEYS.ESC))
-            if (!testAndExecKey(keyCode, 81, KEYS.Q))
-            if (!testAndExecKey(keyCode, 69, KEYS.E))
-            {}
+                if (!testAndExecKey(keyCode, 32, KEYS.SPACE))
+                    if (!testAndExecKey(keyCode, 13, KEYS.ENTER))
+                        if (!testAndExecKey(keyCode, 27, KEYS.ESC))
+                            if (!testAndExecKey(keyCode, 81, KEYS.Q))
+                                if (!testAndExecKey(keyCode, 69, KEYS.E))
+                                {}
         }
 
     }
@@ -94,7 +93,7 @@ window.TouchController = function(){
     // END KEY LISTENING
 
 
-    var diameter = 175;
+    var diameter = 140;
     var btnDiameter = 65;
     if (_isTouchDevice) {
         document.write("<style>.touchController{ " +
@@ -281,10 +280,18 @@ window.TouchController = function(){
                 };
 
             } else {
+                var keyPressed = {
+                    "87": false,
+                    "65": false,
+                    "68": false,
+                    "83": false
+                };
                 document.onkeydown = function(e){
                     var keyCode = e.keyCode;
                     if (keyCode === 87 || keyCode === 65 || keyCode === 68 || keyCode === 83) {
                         currentKey = keyCode;
+                        keyPressed[""+keyCode] = true;
+                        self.keyDirection = currentKey;
                         iskeydown = true;
                         var now = new Date().getTime();
                         if (firstClick) {
@@ -328,8 +335,12 @@ window.TouchController = function(){
                 document.onkeyup = function(e){
                     var keyCode = e.keyCode;
                     if (keyCode === 87 || keyCode === 65 || keyCode === 68 || keyCode === 83) {
-                        firstClick = true;
-                        iskeydown = false;
+                        keyPressed[""+keyCode] = false;
+                        if (!keyPressed["87"] && !keyPressed["65"] && !keyPressed["68"] && !keyPressed["83"]){
+                            self.keyDirection = DPad.NONE;
+                            iskeydown = false;
+                            firstClick = true;
+                        }
                     }
                 };
 
@@ -365,8 +376,8 @@ window.TouchController = function(){
             this.onDown = null;
             this.onLeft = null;
             this.onRight = null;
-
         }
+        this.keyDirection = DPad.NONE;
     }
 
     DPad.prototype = Object.create(AnalogStick.prototype);
@@ -377,22 +388,29 @@ window.TouchController = function(){
     DPad.RIGHT = 68;
     DPad.NONE = -1;
 
-    DPad.prototype.getDirection = function(){
-        if (this.isPressed()) {
-            var deg = this.getDegree();
-            if (deg < 45 || deg >= 315){
-                return DPad.LEFT;
-            } else if (deg < 315 && deg >= 225) {
-                return DPad.UP;
-            } else if (deg < 225 && deg >= 135) {
-                return DPad.RIGHT;
+    if (_isTouchDevice) {
+        DPad.prototype.getDirection = function(){
+            if (this.isPressed()) {
+                var deg = this.getDegree();
+                if (deg < 45 || deg >= 315){
+                    return DPad.LEFT;
+                } else if (deg < 315 && deg >= 225) {
+                    return DPad.UP;
+                } else if (deg < 225 && deg >= 135) {
+                    return DPad.RIGHT;
+                } else {
+                    return DPad.DOWN;
+                }
             } else {
-                return DPad.DOWN;
+                return DPad.NONE;
             }
-        } else {
-            return DPad.NONE;
+        };
+    } else {
+        DPad.prototype.getDirection = function(){
+            return this.keyDirection;
         }
-    };
+    }
+
 
 
 
