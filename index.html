@@ -32,7 +32,7 @@
 
         var t = new TouchController.DPad("touch", {bottom:2, left:2});
 
-        var b = new TouchController.Button("abtn", "A", {bottom:2, left: 200})
+        var b = new TouchController.Button("abtn", "A", {bottom:2, left: 200, key: TouchController.KEYS.SPACE})
         b.onClick = function(){
             $("#demo").toggleClass("qq");
         }

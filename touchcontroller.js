@@ -49,6 +49,49 @@ window.TouchController = function(){
         topTouchOffset = 100;
     }
 
+    // KEY LISTENING
+
+    var keyToButton = {};
+
+    var KEYS = {
+        SPACE : "sp",
+        ENTER : "en",
+        ESC : "esc",
+        Q : "q",
+        E : "e"
+    }
+
+    function testAndExecKey(keycode, expectedKeycode, value) {
+        console.log("test " + value);
+        if (expectedKeycode === keycode && value in keyToButton ){
+            var btn = keyToButton[value];
+            if (btn.onClick !== null) {
+                btn.onClick.call(btn);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    if (!isTouchDevice()){
+
+        document.onkeyup = function(e){
+            var keyCode = e.keyCode;
+            // Do not listen on WASD
+            if (keyCode !== 87 && keyCode !== 65 &&
+                keyCode !== 83 && keyCode !== 68)
+            if (!testAndExecKey(keyCode, 32, KEYS.SPACE))
+            if (!testAndExecKey(keyCode, 13, KEYS.ENTER))
+            if (!testAndExecKey(keyCode, 27, KEYS.ESC))
+            if (!testAndExecKey(keyCode, 81, KEYS.Q))
+            if (!testAndExecKey(keyCode, 69, KEYS.E))
+            {}
+        }
+
+    }
+
+    // END KEY LISTENING
+
 
     var diameter = 175;
     var btnDiameter = 65;
@@ -191,6 +234,10 @@ window.TouchController = function(){
             style += "right:" +options.right + "px;";
         }
 
+        if ("key" in options) {
+            keyToButton[options["key"]] = this;
+        }
+
         var id = "touchBtn" + nextID++;
         this.pressed = false;
         el.innerHTML = '<div style="'+
@@ -234,6 +281,7 @@ window.TouchController = function(){
     };
 
     return {
+        KEYS : KEYS,
         AnalogStick: AnalogStick,
         DPad: DPad,
         Button: Button,
