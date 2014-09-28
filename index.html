@@ -35,6 +35,15 @@
         t.onUp = function(){
             $("#text").html($("#text").html() + "UP.");
         };
+        t.onDown = function(){
+            $("#text").html($("#text").html() + "DO.");
+        };
+        t.onLeft = function(){
+            $("#text").html($("#text").html() + "LE.");
+        };
+        t.onRight = function(){
+            $("#text").html($("#text").html() + "RI.");
+        };
 
         var a = new TouchController.Button("abtn", "A", {bottom:2, left: 180, key: TouchController.KEYS.SPACE});
         a.onClick = function(){
