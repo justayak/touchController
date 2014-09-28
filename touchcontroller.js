@@ -10,6 +10,7 @@ window.TouchController = function(){
             || (navigator.MaxTouchPoints > 0)
             || (navigator.msMaxTouchPoints > 0));
     }
+    var _isTouchDevice = isTouchDevice();
 
     var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 
@@ -73,7 +74,7 @@ window.TouchController = function(){
         return false;
     }
 
-    if (!isTouchDevice()){
+    if (!_isTouchDevice){
 
         document.onkeyup = function(e){
             var keyCode = e.keyCode;
@@ -95,78 +96,86 @@ window.TouchController = function(){
 
     var diameter = 175;
     var btnDiameter = 65;
-    document.write("<style>.touchController{ " +
-        "width:"+diameter+"px;height:"+diameter+"px;border:2px solid black;position:absolute;border-radius:50%;" +
-        " } .innerTouchController {" +
-        "width:5px;height:5px;margin-left:auto;margin-right:auto;margin-top:"+(Math.ceil(diameter/2))+
-        "px;background-color:black;}" +
-        ".touchBtn{position:absolute;border:2px solid black;position:absolute;border-radius:50%;" +
-        "width:"+btnDiameter+"px;height:"+btnDiameter+"px;}" +
-        ".touchBtnTxt{text-align:center;line-height:"+btnDiameter+"px;}" +
-        ".touchBtn.pressed{background-color:cornflowerblue;}" +
-        "</style>");
+    if (_isTouchDevice) {
+        document.write("<style>.touchController{ " +
+            "width:"+diameter+"px;height:"+diameter+"px;border:2px solid black;position:absolute;border-radius:50%;" +
+            " } .innerTouchController {" +
+            "width:5px;height:5px;margin-left:auto;margin-right:auto;margin-top:"+(Math.ceil(diameter/2))+
+            "px;background-color:black;}" +
+            ".touchBtn{position:absolute;border:2px solid black;position:absolute;border-radius:50%;" +
+            "width:"+btnDiameter+"px;height:"+btnDiameter+"px;}" +
+            ".touchBtnTxt{text-align:center;line-height:"+btnDiameter+"px;}" +
+            ".touchBtn.pressed{background-color:cornflowerblue;}" +
+            "</style>");
+    }
+
 
     // =============== ANALOG STICK =================
 
     function AnalogStick(domid, position) {
         var el = document.getElementById(domid);
-        var style = "";
-        if (typeof position === "undefined") {
-            position = {};
+        if (_isTouchDevice) {
+            var style = "";
+            if (typeof position === "undefined") {
+                position = {};
+            }
+            if ("bottom" in position){
+                style += "bottom:" +position.bottom + "px;";
+            } else if ("top" in position) {
+                style += "top:" +position.top + "px;";
+            }
+            if ("left" in position){
+                style += "left:" +position.left + "px;";
+            } else if ("right" in position) {
+                style += "right:" +position.right + "px;";
+            }
+
+            var id = "touchController" + nextID++;
+            el.innerHTML = '<div style="'+
+                style+
+                '" id="'+ id
+                +'" class="touchController"><div class="innerTouchController"></div></div>';
+
+            this.fx = -1;
+            this.fy = -1;
+            this.pressed = false;
+            this.x = 0;
+            this.y = 0;
+            var self = this;
+
+            function handleStart(e) {
+                self.pressed = true;
+                e.preventDefault();
+                self.fx = e.changedTouches[0].screenX;
+                self.fy = e.changedTouches[0].screenY - topTouchOffset;
+            }
+
+            function handleEnd(e) {
+                self.pressed = false;
+                e.preventDefault();
+            }
+
+            function handleMove(e) {
+                e.preventDefault();
+                self.fx = e.changedTouches[0].screenX;
+                self.fy = e.changedTouches[0].screenY - topTouchOffset;
+            }
+
+            el.addEventListener("touchstart", handleStart, false);
+            el.addEventListener("touchend", handleEnd, false);
+            el.addEventListener("touchmove", handleMove, false);
+            el.addEventListener("touchcancel", handleEnd, false);
+
+            setTimeout(function(){
+                var el = document.getElementById(id);
+                var o = getOffsetRect(el);
+                self.x = o.left + Math.ceil(diameter/2);
+                self.y = o.top + Math.ceil(diameter/2);
+            },100);
+        } else {
+            // NON-TOUCH-DEVICE
+            el.parentNode.removeChild(el);
         }
-        if ("bottom" in position){
-            style += "bottom:" +position.bottom + "px;";
-        } else if ("top" in position) {
-            style += "top:" +position.top + "px;";
-        }
-        if ("left" in position){
-            style += "left:" +position.left + "px;";
-        } else if ("right" in position) {
-            style += "right:" +position.right + "px;";
-        }
-
-        var id = "touchController" + nextID++;
-        el.innerHTML = '<div style="'+
-            style+
-            '" id="'+ id
-            +'" class="touchController"><div class="innerTouchController"></div></div>';
-
-        this.fx = -1;
-        this.fy = -1;
-        this.pressed = false;
-        this.x = 0;
-        this.y = 0;
-        var self = this;
-
-        function handleStart(e) {
-            self.pressed = true;
-            e.preventDefault();
-            self.fx = e.changedTouches[0].screenX;
-            self.fy = e.changedTouches[0].screenY - topTouchOffset;
-        }
-
-        function handleEnd(e) {
-            self.pressed = false;
-            e.preventDefault();
-        }
-
-        function handleMove(e) {
-            e.preventDefault();
-            self.fx = e.changedTouches[0].screenX;
-            self.fy = e.changedTouches[0].screenY - topTouchOffset;
-        }
-
-        el.addEventListener("touchstart", handleStart, false);
-        el.addEventListener("touchend", handleEnd, false);
-        el.addEventListener("touchmove", handleMove, false);
-        el.addEventListener("touchcancel", handleEnd, false);
-
-        setTimeout(function(){
-            var el = document.getElementById(id);
-            var o = getOffsetRect(el);
-            self.x = o.left + Math.ceil(diameter/2);
-            self.y = o.top + Math.ceil(diameter/2);
-        },100);
     }
 
     AnalogStick.prototype.isPressed = function(){
@@ -219,58 +228,62 @@ window.TouchController = function(){
      */
     function Button(domid, name, options) {
         var el = document.getElementById(domid);
-        var style = "";
-        if (typeof options === "undefined") {
-            options = {};
-        }
-        if ("bottom" in options){
-            style += "bottom:" +options.bottom + "px;";
-        } else if ("top" in options) {
-            style += "top:" +options.top + "px;";
-        }
-        if ("left" in options){
-            style += "left:" +options.left + "px;";
-        } else if ("right" in options) {
-            style += "right:" +options.right + "px;";
-        }
-
-        if ("key" in options) {
-            keyToButton[options["key"]] = this;
-        }
-
-        var id = "touchBtn" + nextID++;
-        this.pressed = false;
-        el.innerHTML = '<div style="'+
-            style+
-            '" id="'+ id
-            +'" class="touchBtn"><div class="touchBtnTxt">' + name +'</div></div>';
-
-        var self = this;
-
-        function handleStart(e) {
-            self.pressed = true;
-            document.getElementById(id).className = "touchBtn pressed";
-            e.preventDefault();
-        }
-
-        function handleEnd(e) {
-            self.pressed = false;
-            if (self.onClick !== null) {
-                self.onClick.call(self);
+        if (_isTouchDevice){
+            var style = "";
+            if (typeof options === "undefined") {
+                options = {};
             }
-            document.getElementById(id).className = "touchBtn";
-            e.preventDefault();
-        }
+            if ("bottom" in options){
+                style += "bottom:" +options.bottom + "px;";
+            } else if ("top" in options) {
+                style += "top:" +options.top + "px;";
+            }
+            if ("left" in options){
+                style += "left:" +options.left + "px;";
+            } else if ("right" in options) {
+                style += "right:" +options.right + "px;";
+            }
 
-        function handleCancel(e){
-            self.pressed = false;
-            document.getElementById(id).className = "touchBtn";
-            e.preventDefault();
-        }
+            var id = "touchBtn" + nextID++;
+            this.pressed = false;
+            el.innerHTML = '<div style="'+
+                style+
+                '" id="'+ id
+                +'" class="touchBtn"><div class="touchBtnTxt">' + name +'</div></div>';
 
-        el.addEventListener("touchstart", handleStart, false);
-        el.addEventListener("touchend", handleEnd, false);
-        el.addEventListener("touchcancel", handleCancel, false);
+            var self = this;
+
+            function handleStart(e) {
+                self.pressed = true;
+                document.getElementById(id).className = "touchBtn pressed";
+                e.preventDefault();
+            }
+
+            function handleEnd(e) {
+                self.pressed = false;
+                if (self.onClick !== null) {
+                    self.onClick.call(self);
+                }
+                document.getElementById(id).className = "touchBtn";
+                e.preventDefault();
+            }
+
+            function handleCancel(e){
+                self.pressed = false;
+                document.getElementById(id).className = "touchBtn";
+                e.preventDefault();
+            }
+
+            el.addEventListener("touchstart", handleStart, false);
+            el.addEventListener("touchend", handleEnd, false);
+            el.addEventListener("touchcancel", handleCancel, false);
+        } else {
+            // NON-TOUCH-DEVICE
+            el.parentNode.removeChild(el);
+            if ("key" in options) {
+                keyToButton[options["key"]] = this;
+            }
+        }
 
         this.onClick = null;
 
@@ -285,6 +298,6 @@ window.TouchController = function(){
         AnalogStick: AnalogStick,
         DPad: DPad,
         Button: Button,
-        isTouchDevice: isTouchDevice()
+        isTouchDevice: _isTouchDevice
     };
 }();

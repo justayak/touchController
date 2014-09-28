@@ -32,11 +32,22 @@
 
         var t = new TouchController.DPad("touch", {bottom:2, left:2});
 
-        var b = new TouchController.Button("abtn", "A", {bottom:2, left: 200, key: TouchController.KEYS.SPACE})
-        b.onClick = function(){
+        var a = new TouchController.Button("abtn", "A", {bottom:2, left: 180, key: TouchController.KEYS.SPACE});
+        a.onClick = function(){
             $("#demo").toggleClass("qq");
         }
 
+        var b = new TouchController.Button("bbtn", "B", {bottom:2, left: 260, key: TouchController.KEYS.ENTER});
+        b.onClick = function(){
+            var o = parseInt($("#demo").css('opacity'),10);
+            console.log(o);
+            if (o === 1) {
+                $("#demo").css('opacity', 0.5);
+            } else {
+                $("#demo").css('opacity', 1);
+            }
+
+        }
 
         setInterval(function(){
             $("#text").html(t.getDirection() + " - " + b.isPressed());
