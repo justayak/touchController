@@ -1,0 +1,25 @@
+{
+  "name": "touchController",
+  "version": "0.0.1",
+  "description": "Touchcontroller",
+  "main": "lib/touchController.js",
+  "scripts": {
+    "test": "alert(\"test\")",
+    "debug": "browserify lib/touchController.js --debug --s TouchController > build/touchController.bundle.debug.js",
+    "build": "browserify lib/touchController.js --s TouchController | uglifyjs > build/touchController.bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justayak/touchController.git"
+  },
+  "keywords": [
+    "touch",
+    "controller"
+  ],
+  "author": "= <=>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/justayak/touchController/issues"
+  },
+  "homepage": "https://github.com/justayak/touchController"
+}
