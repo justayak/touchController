@@ -5,12 +5,18 @@
   "main": "lib/touchController.js",
   "scripts": {
     "test": "alert(\"test\")",
+    "start_server": "node lib/server/remoteServer.js",
     "debug": "browserify lib/touchController.js --debug --s TouchController > build/touchController.bundle.debug.js",
     "build": "browserify lib/touchController.js --s TouchController | uglifyjs > build/touchController.bundle.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/justayak/touchController.git"
+  },
+  "dependencies": {
+    "future-callbacks" : "0.0.5",
+    "peerjs":"0.3.*",
+    "peer": "0.2.*"
   },
   "keywords": [
     "touch",
